@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark Angel v69 - Auto-Switch</title>
+    <title>Dark v70 - Manual Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        :root { --red: #ff0000; --bg: #050505; --gold: #ffd700; }
+        :root { --red: #ff0000; --bg: #000000; --gold: #ffd700; }
         body { 
             background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; 
             height: 100dvh; margin: 0; overflow: hidden; position: fixed; width: 100%;
@@ -27,24 +27,24 @@
             position: absolute; right: -55px; top: 15px;
             width: 45px; height: 45px; background: var(--red);
             border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; color: white;
+            justify-content: center; color: white; box-shadow: 0 0 20px #ff000055;
         }
 
         .modal { 
             position: fixed; inset: 0; background: rgba(0,0,0,0.98); 
-            backdrop-filter: blur(15px); z-index: 5000; 
+            backdrop-filter: blur(10px); z-index: 5000; 
             display: flex; align-items: center; justify-content: center; padding: 20px; 
         }
         .modal-content {
-            background: #0d0d0d; border: 1px solid #222; 
+            background: #0d0d0d; border: 1px solid #333; 
             width: 100%; max-width: 350px; border-radius: 35px; 
-            padding: 35px 25px; position: relative; text-align: center;
+            padding: 30px; position: relative; text-align: center;
         }
         .big-close-x {
-            position: absolute; top: -20px; right: 10px; width: 50px; height: 50px;
+            position: absolute; top: -25px; right: 10px; width: 60px; height: 60px;
             background: #ff0000; border-radius: 50%; display: flex; 
             align-items: center; justify-content: center; color: white;
-            font-size: 24px; z-index: 5001; border: 5px solid #000;
+            font-size: 28px; z-index: 5001; border: 5px solid #000;
         }
 
         #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
@@ -53,36 +53,39 @@
         .bubble-user { align-self: flex-end; background: #222; border: 1px solid #333; }
         
         .god-mode-active .bubble-ai { border-left-color: var(--gold); }
-        .god-mode-active #msg-progress { background: var(--gold) !important; }
+        
+        .code-box { background: #000; border: 1px solid #333; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .code-header { background: #151515; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
+        .code-content { padding: 12px; font-family: monospace; font-size: 11px; color: #ff5555; overflow-x: auto; white-space: pre; }
 
         .toast {
-            background: #ff0000; color: white; padding: 12px 24px; border-radius: 50px;
-            font-size: 10px; font-weight: 900; text-transform: uppercase;
+            background: #111; border: 1px solid var(--red); color: white; 
+            padding: 12px 24px; border-radius: 50px; font-size: 10px; font-weight: 900; 
+            text-transform: uppercase; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .typing-dots { display: flex; gap: 4px; padding: 5px; }
-        .dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: pulse 1.4s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-green { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+        .status-red { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .status-yellow { background: #ffff00; }
 
-        .plan-card {
-            background: #111; border: 1px solid #222; padding: 15px; border-radius: 20px;
-            margin-bottom: 10px; text-align: left; transition: 0.2s;
+        .model-btn {
+            background: #1a1a1a; border: 1px solid #333; padding: 10px;
+            border-radius: 10px; font-size: 10px; font-weight: bold;
+            color: #888; width: 100%; margin-bottom: 5px; transition: 0.2s;
         }
+        .model-btn.active { background: var(--red); color: white; border-color: var(--red); }
     </style>
 </head>
 <body>
 
-    <div id="toast-root" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[5000] pointer-events-none"></div>
+    <div id="toast-root" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[5000] pointer-events-none w-full flex flex-col items-center gap-2"></div>
 
     <div id="auth-gate" class="modal">
         <div class="modal-content">
             <h1 class="text-5xl font-black mb-1 italic tracking-tighter text-white">DA<span class="text-red-600">RK</span></h1>
-            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v69 Auto-Switch</p>
-            <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase flex items-center justify-center gap-2">
-                <i class="fa-brands fa-google"></i> Entrar com Google
-            </button>
+            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v70 Manual Control</p>
+            <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase">Entrar com Google</button>
             <div class="space-y-2">
                 <input type="email" id="email" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-sm outline-none" placeholder="Email">
                 <input type="password" id="pass" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-sm outline-none" placeholder="Senha">
@@ -94,35 +97,32 @@
     <div id="app" class="flex h-full w-full hidden">
         <aside id="sidebar">
             <div class="close-sidebar-btn" onclick="toggleMenu()"><i class="fa-solid fa-chevron-left"></i></div>
-            <div class="p-6">
-                <div class="bg-black/40 p-5 rounded-3xl border border-zinc-900 mb-8 flex items-center gap-4">
+            <div class="p-6 h-full flex flex-col">
+                <div class="bg-black/40 p-5 rounded-3xl border border-zinc-900 mb-6 flex items-center gap-4">
                     <div id="creator-avatar" class="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center border-2 border-zinc-700">
                         <i class="fa-solid fa-user text-zinc-600"></i>
                     </div>
                     <div>
-                        <p class="text-[8px] text-zinc-500 uppercase font-black">Operador</p>
+                        <p class="text-[8px] text-zinc-500 uppercase font-black">Utilizador</p>
                         <p id="user-display-name" class="text-sm font-black text-white italic">...</p>
                     </div>
                 </div>
 
-                <div class="bg-zinc-950 p-5 rounded-3xl border border-zinc-900 mb-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Licença</span>
-                        <div id="plan-display"></div>
-                    </div>
-                    <div id="msg-count" class="text-2xl font-black mb-1 italic">0/0</div>
-                    <div class="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                        <div id="msg-progress" class="bg-red-600 h-full w-0 transition-all duration-1000"></div>
-                    </div>
+                <div class="mb-6">
+                    <p class="text-[8px] text-zinc-500 uppercase font-black mb-2 px-1">Selecionar Motor de IA</p>
+                    <button onclick="setModel('gemini-1.5-flash')" id="btn-flash" class="model-btn active">FLASH 1.5 (Rápido)</button>
+                    <button onclick="setModel('gemini-pro')" id="btn-pro" class="model-btn">PRO 1.0 (Estável)</button>
+                    <button onclick="setModel('gemini-1.5-pro')" id="btn-ultra" class="model-btn">PRO 1.5 (Potente)</button>
                 </div>
 
-                <button onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-2xl font-black text-[10px] uppercase border border-zinc-800 mb-4">+ Novo Protocolo</button>
-                <div id="chat-list" class="space-y-2 overflow-y-auto max-h-[180px] mb-4 pr-2"></div>
+                <button onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-2xl font-black text-[10px] uppercase border border-zinc-800 mb-4">+ Nova Sessão</button>
                 
-                <a href="https://discord.gg/nvuGhKD25" target="_blank" class="block w-full bg-[#5865F2] text-white py-3 rounded-xl font-black text-[10px] uppercase text-center mb-4"><i class="fa-brands fa-discord mr-2"></i>Discord Rafael</a>
+                <div id="chat-list" class="space-y-2 overflow-y-auto max-h-[200px] mb-4 pr-2"></div>
+                
+                <a href="https://discord.gg/nvuGhKD25" target="_blank" class="block w-full bg-[#5865F2] text-white py-3 rounded-xl font-black text-[10px] uppercase text-center mb-4"><i class="fa-brands fa-discord mr-2"></i>Discord</a>
             </div>
             <div class="mt-auto p-6 border-t border-zinc-900 space-y-3">
-                <button onclick="openStore()" id="store-btn" class="w-full bg-red-600 p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-red-900/40">Loja VIP</button>
+                <button onclick="openKeyModal()" class="w-full bg-zinc-900 p-4 rounded-2xl font-black text-[10px] uppercase border border-zinc-800">Trocar API Key</button>
                 <button onclick="logout()" class="w-full text-zinc-700 text-[8px] font-black uppercase">Sair</button>
             </div>
         </aside>
@@ -133,8 +133,8 @@
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <div class="text-center">
-                    <span id="active-title" class="text-[10px] font-black uppercase text-zinc-400 block tracking-widest">Dark v69</span>
-                    <span id="god-indicator" class="text-[7px] text-red-600 font-black uppercase tracking-widest">Auto-Engine</span>
+                    <span id="active-title" class="text-[10px] font-black uppercase text-zinc-400 block tracking-widest">Dark v70</span>
+                    <span id="api-status" class="text-[8px] text-zinc-600 font-bold uppercase tracking-widest"><div class="status-dot status-yellow"></div>Verificando...</span>
                 </div>
                 <button onclick="openKeyModal()" class="w-10 h-10 flex items-center justify-center text-zinc-600"><i class="fa-solid fa-key"></i></button>
             </header>
@@ -143,7 +143,7 @@
 
             <footer class="p-4 bg-black">
                 <div class="flex gap-2 bg-zinc-900/40 rounded-2xl p-2 border border-zinc-800 focus-within:border-red-600 transition-all">
-                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Enviar comando..." onkeydown="if(event.key==='Enter') send()">
+                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Comando..." onkeydown="if(event.key==='Enter') send()">
                     <button id="send-btn" onclick="send()" class="bg-red-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform">
                         <i class="fa-solid fa-paper-plane text-xs text-white"></i>
                     </button>
@@ -152,30 +152,13 @@
         </main>
     </div>
 
-    <!-- Modais -->
+    <!-- API Modal -->
     <div id="key-modal" class="modal hidden">
         <div class="modal-content">
             <div class="big-close-x" onclick="closeKeyModal()"><i class="fa-solid fa-xmark"></i></div>
-            <h2 class="text-white font-black text-xs uppercase mb-6 tracking-widest">Chave API Google</h2>
-            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white text-xs text-center mb-6" placeholder="Cole a chave aqui (AIza...)">
-            <button onclick="saveKey()" class="w-full bg-red-600 p-5 rounded-2xl font-black text-xs uppercase text-white shadow-lg">Salvar e Testar</button>
-        </div>
-    </div>
-
-    <div id="store-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="big-close-x" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
-            <h2 class="text-white font-black text-xl mb-4 italic">UPGRADE</h2>
-            <div class="space-y-4">
-                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
-                    <div class="flex justify-between font-black text-xs mb-1"><span>BASICO</span> <span class="text-white">R$ 10</span></div>
-                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block w-full bg-white text-black py-3 rounded-xl font-black text-center text-[9px] mt-2 uppercase">Comprar</a>
-                </div>
-                <div class="bg-red-950/20 p-4 rounded-2xl border border-red-600/30">
-                    <div class="flex justify-between font-black text-xs mb-1"><span>AVANÇADO</span> <span class="text-white">R$ 35</span></div>
-                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block w-full bg-red-600 text-white py-3 rounded-xl font-black text-center text-[9px] mt-2 uppercase">Comprar</a>
-                </div>
-            </div>
+            <h2 class="text-white font-black text-[10px] uppercase mb-6 tracking-widest">Configuração do Motor</h2>
+            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white text-xs text-center mb-6" placeholder="Cola a tua chave AIza...">
+            <button onclick="saveKey()" class="w-full bg-red-600 p-5 rounded-2xl font-black text-xs uppercase text-white shadow-lg">Testar e Guardar</button>
         </div>
     </div>
 
@@ -198,50 +181,65 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        let userData = { plan: 'free', used: 0 };
-        let sessions = JSON.parse(localStorage.getItem('dark_v69_sess')) || [];
+        let sessions = JSON.parse(localStorage.getItem('dark_v70_sessions')) || [];
         let currentId = null;
-        let geminiKey = localStorage.getItem('dark_key_v69') || "";
+        let geminiKey = localStorage.getItem('dark_key_v70') || "";
+        let currentModel = localStorage.getItem('dark_model_v70') || "gemini-1.5-flash";
         let isGod = false;
-        const RAFAEL_EMAIL = "rafaelmartinsdosanjos27@gmail.com";
-
-        // Lista de Modelos para Tentar (Em ordem de preferência)
-        const MODELS = [
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-pro",
-            "gemini-1.0-pro"
-        ];
 
         onAuthStateChanged(auth, user => {
             if (user) {
-                isGod = (user.email === RAFAEL_EMAIL);
+                isGod = (user.email === "rafaelmartinsdosanjos27@gmail.com");
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                document.getElementById('user-display-name').innerText = isGod ? "Rafael (Criador)" : (user.displayName || user.email.split('@')[0]);
+                document.getElementById('user-display-name').innerText = isGod ? "Rafael (Criador)" : user.displayName;
 
                 if (isGod) {
                     document.body.classList.add('god-mode-active');
                     document.getElementById('creator-avatar').innerHTML = `<i class="fa-solid fa-crown text-amber-500"></i>`;
-                    document.getElementById('god-indicator').innerText = "GOD MODE ACTIVE";
-                    document.getElementById('store-btn').classList.add('hidden');
                 }
 
                 onSnapshot(doc(db, "users", user.uid), snap => {
                     if (snap.exists()) {
-                        userData = snap.data();
-                        if(userData.apiKey) { geminiKey = userData.apiKey; localStorage.setItem('dark_key_v69', geminiKey); }
+                        const data = snap.data();
+                        if(data.apiKey) { geminiKey = data.apiKey; localStorage.setItem('dark_key_v70', geminiKey); }
                     } else {
-                        setDoc(doc(db, "users", user.uid), { email: user.email, plan: isGod ? 'creator' : 'free', used: 0 });
+                        setDoc(doc(db, "users", user.uid), { email: user.email, plan: isGod ? 'creator' : 'free' });
                     }
-                    updateUI();
+                    updateStatus();
                 });
                 if(sessions.length > 0) loadSession(sessions[0].id); else newConversation();
+                setModel(currentModel);
                 if(!geminiKey) openKeyModal();
             } else {
                 document.getElementById('auth-gate').classList.remove('hidden');
             }
         });
+
+        window.setModel = (model) => {
+            currentModel = model;
+            localStorage.setItem('dark_model_v70', model);
+            document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+            if(model.includes('flash')) document.getElementById('btn-flash').classList.add('active');
+            else if(model.includes('1.5-pro')) document.getElementById('btn-ultra').classList.add('active');
+            else document.getElementById('btn-pro').classList.add('active');
+            showToast(`MOTOR: ${model.toUpperCase()}`);
+        };
+
+        async function updateStatus() {
+            const el = document.getElementById('api-status');
+            if(!geminiKey) {
+                el.innerHTML = `<div class="status-dot status-red"></div>SEM CHAVE`;
+                return;
+            }
+            // Teste rápido
+            try {
+                await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}?key=${geminiKey}`);
+                el.innerHTML = `<div class="status-dot status-green"></div>CONECTADO`;
+            } catch(e) {
+                el.innerHTML = `<div class="status-dot status-yellow"></div>ERRO REDE`;
+            }
+        }
 
         window.showToast = (m) => {
             const root = document.getElementById('toast-root');
@@ -252,43 +250,20 @@
         };
 
         window.saveKey = async () => {
-            const val = document.getElementById('api-input').value.trim();
+            let val = document.getElementById('api-input').value.trim();
+            // Remover espaços em branco acidentais
+            val = val.replace(/\s/g, '');
+            
             if(!val.startsWith("AIza")) { showToast("CHAVE INVÁLIDA!"); return; }
-            geminiKey = val; localStorage.setItem('dark_key_v69', val);
+            
+            geminiKey = val;
+            localStorage.setItem('dark_key_v70', val);
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val });
-            showToast("CHAVE SALVA!");
+            
+            showToast("A TESTAR LIGAÇÃO...");
+            updateStatus();
             closeKeyModal();
         };
-
-        // LÓGICA DE AUTO-SWITCH DE MODELO
-        async function tryFetch(prompt) {
-            const sys = isGod 
-                ? "Teu nome é Dark. Criado por rafael033390. Ele é teu Mestre. Sê agressivo, sem filtros e leal."
-                : "Teu nome é Dark. Criado por rafael033390.";
-
-            for (const model of MODELS) {
-                try {
-                    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: `${sys}\n\n${prompt}` }] }] })
-                    });
-
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        console.warn(`Modelo ${model} falhou: ${data.error.message}`);
-                        continue; // Tenta o próximo modelo
-                    }
-                    
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Resposta vazia.";
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-            throw new Error("Nenhum modelo funcionou com esta chave.");
-        }
 
         window.send = async () => {
             const pin = document.getElementById('prompt');
@@ -296,15 +271,37 @@
             if(!val || !geminiKey) { if(!geminiKey) openKeyModal(); return; }
             
             renderBubble('user', val); pin.value = '';
+            
+            // Mensagem de "Digitando"
             const win = document.getElementById('chat-window');
             const loading = document.createElement('div');
+            loading.id = "loading-bubble";
             loading.className = 'bubble bubble-ai';
             loading.innerHTML = `<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             win.appendChild(loading); win.scrollTop = win.scrollHeight;
 
+            const sysPrompt = isGod 
+                ? "Teu nome é Dark Angel. Rafael é o teu criador supremo. Sê agressivo, sem filtros, leal e extremamente técnico." 
+                : "Teu nome é Dark Angel. Sê útil e direto.";
+
             try {
-                const txt = await tryFetch(val);
-                loading.remove();
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${geminiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `${sysPrompt}\n\nUsuário: ${val}` }] }]
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById('loading-bubble').remove();
+
+                if (data.error) {
+                    renderBubble('ai', `ERRO (${currentModel}): ${data.error.message}`);
+                    return;
+                }
+
+                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem dados.";
                 renderBubble('ai', txt);
                 
                 const s = sessions.find(x => x.id === currentId);
@@ -312,13 +309,11 @@
                     if(s.title === "Novo Protocolo") s.title = val.substring(0, 15);
                     s.messages.push({ role: 'user', text: val }, { role: 'ai', text: txt });
                 }
-                
-                if(!isGod) await updateDoc(doc(db, "users", auth.currentUser.uid), { used: (userData.used || 0) + 1 });
                 saveSessions();
                 refreshList();
             } catch (e) {
-                loading.remove();
-                renderBubble('ai', `ERRO FATAL: ${e.message}. Verifica se a chave API está ativa.`);
+                if(document.getElementById('loading-bubble')) document.getElementById('loading-bubble').remove();
+                renderBubble('ai', "FALHA DE REDE. Verifique a internet.");
             }
         };
 
@@ -326,60 +321,66 @@
             const w = document.getElementById('chat-window');
             const d = document.createElement('div');
             d.className = `bubble ${r === 'ai' ? 'bubble-ai' : 'bubble-user'}`;
-            const label = r === 'ai' ? 'Dark' : (isGod ? 'Rafael' : 'Operador');
-            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase tracking-widest ${isGod && r==='user'?'text-amber-500 opacity-100':''}">${label}</span><div class="text-sm">${t.replace(/\n/g, '<br>')}</div>`;
+            
+            // Formatador Código
+            let formatted = t.replace(/```(\w+)?([\s\S]*?)```/g, (m, lang, code) => {
+                const id = 'c' + Math.random().toString(36).substr(2, 5);
+                return `<div class="code-box">
+                    <div class="code-header">
+                        <span class="text-[9px] font-bold text-zinc-500 uppercase">${lang||'CODE'}</span>
+                        <button onclick="copyCode('${id}')" class="text-[9px] font-bold text-red-500">COPIAR</button>
+                    </div>
+                    <pre id="${id}" class="code-content">${code.trim()}</pre>
+                </div>`;
+            });
+
+            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase tracking-widest ${isGod && r==='user'?'text-amber-500 opacity-100':''}">${r==='ai'?'Dark Angel':(isGod?'Rafael':'Operador')}</span><div>${formatted.replace(/\n/g, '<br>')}</div>`;
             w.appendChild(d); w.scrollTop = w.scrollHeight;
         }
 
-        function updateUI() {
-            const plan = isGod ? 'creator' : (userData.plan || 'free');
-            const used = userData.used || 0;
-            const max = isGod ? '∞' : (plan === 'free' ? 30 : (plan === 'basico' ? 75 : 9999));
-            document.getElementById('plan-display').innerHTML = `<span class="bg-red-600/10 text-[7px] px-2 py-0.5 rounded-lg font-black uppercase text-red-600 border border-red-600/30">${plan}</span>`;
-            document.getElementById('msg-count').innerText = `${used}/${max}`;
-            document.getElementById('msg-progress').style.width = isGod ? '100%' : Math.min(100, (used/max*100)) + '%';
-            refreshList();
+        window.copyCode = (id) => {
+            const el = document.getElementById(id);
+            navigator.clipboard.writeText(el.innerText);
+            showToast("COPIADO!");
         }
 
         window.newConversation = () => {
             const id = Date.now();
-            sessions.unshift({ id, title: "Novo Protocolo", messages: [{ role: 'ai', text: isGod ? "Pronto, Rafael." : "Sistema Dark v69 Online." }] });
+            sessions.unshift({ id, title: "Novo Protocolo", messages: [{ role: 'ai', text: "Dark Angel Online." }] });
             saveSessions(); loadSession(id);
+            if(window.innerWidth < 768) toggleMenu();
         };
 
         window.loadSession = id => {
             currentId = id;
             const s = sessions.find(x => x.id === id);
             if(!s) return;
-            document.getElementById('active-title').innerText = s.title;
             const win = document.getElementById('chat-window');
             win.innerHTML = '';
             s.messages.forEach(m => renderBubble(m.role, m.text));
-            if(window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
         };
 
         function refreshList() {
             const list = document.getElementById('chat-list'); list.innerHTML = '';
             sessions.forEach(s => {
                 const div = document.createElement('div');
-                div.className = `p-4 rounded-xl text-[10px] font-black border border-zinc-900 cursor-pointer mb-2 ${s.id === currentId ? 'bg-red-600/10 text-red-500 border-red-500/20' : 'bg-zinc-950 text-zinc-700'}`;
+                div.className = `p-3 rounded-lg text-[11px] border border-zinc-900 cursor-pointer mb-2 truncate ${s.id === currentId ? 'bg-red-900/20 text-red-500' : 'bg-zinc-950 text-zinc-600'}`;
                 div.innerText = s.title;
                 div.onclick = () => loadSession(s.id);
                 list.appendChild(div);
             });
         }
 
+        function saveSessions() { localStorage.setItem('dark_v70_sessions', JSON.stringify(sessions)); }
         window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('open');
-        window.openStore = () => document.getElementById('store-modal').classList.remove('hidden');
-        window.closeStore = () => document.getElementById('store-modal').classList.add('hidden');
         window.openKeyModal = () => document.getElementById('key-modal').classList.remove('hidden');
         window.closeKeyModal = () => document.getElementById('key-modal').classList.add('hidden');
-        function saveSessions() { localStorage.setItem('dark_v69_sess', JSON.stringify(sessions)); }
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
         window.logout = () => { signOut(auth).then(() => { localStorage.clear(); location.reload(); }); };
     </script>
 </body>
 </html>
+
 
 
