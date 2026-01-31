@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark v71 - Legacy</title>
+    <title>Dark v71.1 - Emergency</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -40,13 +40,6 @@
         .bubble { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 14px; line-height: 1.5; }
         .bubble-ai { align-self: flex-start; background: #111; border-left: 4px solid var(--red); }
         .bubble-user { align-self: flex-end; background: #222; }
-        .typing { display: flex; gap: 4px; padding: 5px; }
-        .dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: pulse 1.4s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .buy-btn {
-            width: 100%; padding: 12px; border-radius: 15px; font-weight: 900;
-            text-transform: uppercase; font-size: 10px; margin-top: 8px; display: block; text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -54,7 +47,7 @@
     <div id="auth-gate" class="modal">
         <div class="modal-content">
             <h1 class="text-5xl font-black mb-2 italic text-white">DA<span class="text-red-600">RK</span></h1>
-            <p class="text-[9px] text-zinc-600 font-black tracking-widest mb-8 uppercase">v71 Legacy Engine</p>
+            <p class="text-[9px] text-zinc-600 font-black tracking-widest mb-8 uppercase">v71.1 Emergency</p>
             <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase">Google Login</button>
             <div class="space-y-2">
                 <input type="email" id="email" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-xs outline-none" placeholder="Email">
@@ -69,50 +62,38 @@
             <div class="close-sidebar-btn" onclick="toggleMenu()"><i class="fa-solid fa-chevron-left"></i></div>
             <div class="p-6 flex flex-col h-full">
                 <div class="flex items-center gap-4 mb-8">
-                    <div id="user-icon" class="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center text-red-600 font-bold">R</div>
-                    <div>
-                        <p id="user-name" class="font-black italic text-white text-sm">...</p>
-                        <p class="text-[8px] text-zinc-500 uppercase font-black">Membro Ativo</p>
-                    </div>
+                    <div class="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center text-red-600 font-bold">R</div>
+                    <p id="user-name" class="font-black italic text-white text-sm">...</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
-                    <p class="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-2">Planos Dark</p>
                     <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-900">
-                        <p class="text-[10px] font-black text-white mb-2">BÁSICO MENSAL</p>
-                        <p class="text-xs text-zinc-500 mb-4 font-bold">R$ 10,00</p>
-                        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="buy-btn bg-white text-black">Assinar Agora</a>
+                        <p class="text-[10px] font-black text-white mb-2">BÁSICO - R$ 10</p>
+                        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block w-full bg-white text-black py-2 rounded-xl text-center font-black text-[9px] uppercase">Assinar</a>
                     </div>
                     <div class="bg-red-950/10 p-4 rounded-2xl border border-red-600/20">
-                        <p class="text-[10px] font-black text-red-600 mb-2">AVANÇADO MENSAL</p>
-                        <p class="text-xs text-zinc-500 mb-4 font-bold">R$ 35,00</p>
-                        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="buy-btn bg-red-600 text-white">Assinar Agora</a>
+                        <p class="text-[10px] font-black text-red-600 mb-2">AVANÇADO - R$ 35</p>
+                        <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block w-full bg-red-600 text-white py-2 rounded-xl text-center font-black text-[9px] uppercase">Assinar</a>
                     </div>
                 </div>
 
-                <button onclick="newChat()" class="w-full bg-zinc-900 p-4 rounded-xl font-black text-[10px] uppercase border border-zinc-800 mt-auto mb-4">Novo Chat</button>
-                <button onclick="openKey()" class="w-full text-zinc-600 text-[8px] font-black uppercase mb-2">Configurar Chave API</button>
-                <button onclick="logout()" class="w-full text-zinc-800 text-[8px] font-black uppercase">Sair</button>
+                <button onclick="openKey()" class="w-full bg-zinc-900 p-4 rounded-xl font-black text-[10px] uppercase border border-zinc-800 mb-4">Configurar API</button>
+                <button onclick="logout()" class="w-full text-zinc-800 text-[8px] font-black uppercase mt-auto">Sair</button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col relative">
-            <header class="h-16 flex items-center justify-between px-4 border-b border-zinc-900">
-                <button onclick="toggleMenu()" class="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-800 text-white">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
-                <div class="text-center">
-                    <span class="text-[10px] font-black text-white uppercase italic">Dark v71</span>
-                    <span id="status" class="text-[7px] text-zinc-600 block uppercase font-bold">Conectado</span>
-                </div>
-                <div class="w-12"></div>
+            <header class="h-16 flex items-center justify-between px-4 border-b border-zinc-900 bg-black">
+                <button onclick="toggleMenu()" class="text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+                <span class="text-[10px] font-black italic">DARK v71.1</span>
+                <div class="w-6"></div>
             </header>
 
             <div id="chat-window"></div>
 
             <footer class="p-4 bg-black">
                 <div class="flex gap-2 bg-zinc-900 p-2 rounded-2xl border border-zinc-800">
-                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Escreve aqui..." onkeydown="if(event.key==='Enter') send()">
+                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Comando..." onkeydown="if(event.key==='Enter') send()">
                     <button onclick="send()" class="bg-red-600 w-12 h-12 rounded-xl flex items-center justify-center">
                         <i class="fa-solid fa-paper-plane text-white text-xs"></i>
                     </button>
@@ -123,17 +104,15 @@
 
     <div id="key-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="text-white font-black text-xs uppercase mb-6 tracking-widest">API KEY GOOGLE</h2>
-            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white text-xs text-center mb-6" placeholder="Cola aqui a tua chave">
-            <button onclick="saveKey()" class="w-full bg-red-600 p-5 rounded-2xl font-black text-xs uppercase text-white">Guardar</button>
-            <button onclick="closeKey()" class="mt-4 text-zinc-600 text-[8px] uppercase font-black">Fechar</button>
+            <h2 class="text-white font-black text-xs uppercase mb-6">Chave API</h2>
+            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-white text-xs text-center mb-6" placeholder="Cola a tua chave">
+            <button onclick="saveKey()" class="w-full bg-red-600 p-4 rounded-xl font-black text-xs uppercase text-white">Salvar</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAPVM-uc_yHKcY7an0pQABzS2UgRsbNY8",
@@ -146,7 +125,6 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
         let geminiKey = localStorage.getItem('dark_key_v71') || "";
@@ -155,7 +133,7 @@
             if (user) {
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('user-name').innerText = user.displayName || "Operador";
                 if(!geminiKey) openKey();
             } else {
                 document.getElementById('auth-gate').classList.remove('hidden');
@@ -163,13 +141,8 @@
         });
 
         window.saveKey = () => {
-            const val = document.getElementById('api-input').value.trim().replace(/\s/g, '');
-            if(val) {
-                geminiKey = val;
-                localStorage.setItem('dark_key_v71', val);
-                closeKey();
-                location.reload();
-            }
+            const val = document.getElementById('api-input').value.trim();
+            if(val) { geminiKey = val; localStorage.setItem('dark_key_v71', val); closeKey(); location.reload(); }
         };
 
         window.send = async () => {
@@ -177,59 +150,50 @@
             const val = input.value.trim();
             if(!val || !geminiKey) return;
 
-            renderBubble('user', val);
-            input.value = '';
-
+            renderBubble('user', val); input.value = '';
             const win = document.getElementById('chat-window');
             const load = document.createElement('div');
-            load.className = 'bubble bubble-ai';
-            load.innerHTML = `<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+            load.className = 'bubble bubble-ai'; load.innerText = '...';
             win.appendChild(load);
-            win.scrollTop = win.scrollHeight;
 
             try {
-                // USANDO O ENDPOINT 1.0-PRO QUE É O MAIS COMPATÍVEL
+                // FORCE LEGACY PRO 1.0
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${geminiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: val }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: val }] }] })
                 });
-
+                
                 const data = await res.json();
                 load.remove();
 
                 if (data.error) {
-                    renderBubble('ai', "ERRO: O modelo 1.5 está bloqueado na tua conta. Tenta criar uma nova chave num novo projeto ou usar o modelo Pro.");
-                    console.error(data.error);
+                    renderBubble('ai', "ERRO GOOGLE: " + data.error.message);
                 } else {
-                    const txt = data.candidates[0].content.parts[0].text;
-                    renderBubble('ai', txt);
+                    renderBubble('ai', data.candidates[0].content.parts[0].text);
                 }
             } catch (e) {
-                load.remove();
-                renderBubble('ai', "Erro de conexão. Verifica a tua chave API.");
+                load.innerText = "Erro fatal de conexão.";
             }
+            win.scrollTop = win.scrollHeight;
         };
 
         function renderBubble(r, t) {
             const w = document.getElementById('chat-window');
             const d = document.createElement('div');
             d.className = `bubble ${r === 'ai' ? 'bubble-ai' : 'bubble-user'}`;
-            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase tracking-widest">${r === 'ai' ? 'Dark' : 'Tu'}</span><div class="text-sm">${t.replace(/\n/g, '<br>')}</div>`;
-            w.appendChild(d);
-            w.scrollTop = w.scrollHeight;
+            d.innerHTML = `<div class="text-sm">${t.replace(/\n/g, '<br>')}</div>`;
+            w.appendChild(d); w.scrollTop = w.scrollHeight;
         }
 
         window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('open');
         window.openKey = () => document.getElementById('key-modal').classList.remove('hidden');
         window.closeKey = () => document.getElementById('key-modal').classList.add('hidden');
-        window.newChat = () => { document.getElementById('chat-window').innerHTML = ''; toggleMenu(); };
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
         window.logout = () => { signOut(auth); localStorage.clear(); location.reload(); };
     </script>
 </body>
 </html>
+
 
