@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark Angel v54 - UI Feedback</title>
+    <title>Dark Angel v55 - UI Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -25,7 +25,6 @@
         }
         #sidebar.open { transform: translateX(280px); }
 
-        /* Estilo para as notificações flutuantes */
         #notification-container {
             position: fixed; top: 20px; right: 20px; z-index: 9999;
             display: flex; flex-direction: column; gap: 10px; pointer-events: none;
@@ -67,18 +66,35 @@
         footer { padding: 10px; background: #000; }
         .input-box { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; display: flex; align-items: center; padding: 5px; }
         
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        /* Modal Style with Close Button */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92); 
+            backdrop-filter: blur(5px); z-index: 2000; 
+            display: flex; align-items: center; justify-content: center; padding: 20px; 
+        }
+        .modal-content {
+            background: #0a0a0a; border: 1px solid #1a1a1a; 
+            width: 100%; max-width: 350px; border-radius: 28px; 
+            padding: 30px; position: relative;
+        }
+        .close-modal {
+            position: absolute; top: 20px; right: 20px; width: 35px; h-35px;
+            background: #1a1a1a; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; color: #555;
+            cursor: pointer; transition: 0.3s;
+        }
+        .close-modal:hover { background: #ff0000; color: white; }
     </style>
 </head>
 <body>
 
     <div id="notification-container"></div>
 
-    <!-- AUTH GATE -->
+    <!-- AUTH GATE (No close button here for security) -->
     <div id="auth-gate" class="modal">
-        <div class="w-full max-w-xs text-center">
-            <h1 class="text-4xl font-black italic text-white mb-2">DARK<span class="text-red-600">ANGEL</span></h1>
-            <p class="text-[9px] text-zinc-600 font-bold tracking-[0.4em] mb-10 uppercase">Feedback System v54</p>
+        <div class="modal-content text-center">
+            <h1 class="text-3xl font-black italic text-white mb-2">DARK<span class="text-red-600">ANGEL</span></h1>
+            <p class="text-[8px] text-zinc-600 font-bold tracking-[0.4em] mb-8 uppercase">Operational UI v55</p>
             <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4">GOOGLE LOGIN</button>
             <input type="email" id="email" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl mb-2 text-white text-sm" placeholder="Email">
             <input type="password" id="pass" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl mb-6 text-white text-sm" placeholder="Senha">
@@ -90,7 +106,7 @@
     <div id="app" class="app-container hidden">
         <aside id="sidebar">
             <div class="p-6">
-                <button id="btn-new" onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-xl font-black text-[10px] uppercase border border-zinc-800 mb-6">Novo Protocolo</button>
+                <button id="btn-new" onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-xl font-black text-[10px] uppercase border border-zinc-800 mb-6 hover:bg-red-600">Novo Protocolo</button>
                 <div class="bg-black/50 p-4 rounded-xl border border-zinc-900">
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-[8px] font-black uppercase text-zinc-600">Licença</span>
@@ -107,7 +123,7 @@
             </div>
             <div id="chat-list" class="flex-1 overflow-y-auto"></div>
             <div class="p-4 border-t border-zinc-900">
-                <button onclick="openStore()" class="w-full bg-red-600/10 border border-red-600/30 p-3 rounded-lg text-red-500 text-[10px] font-black uppercase mb-2">Upgrade via Discord</button>
+                <button onclick="openStore()" class="w-full bg-red-600/10 border border-red-600/30 p-3 rounded-lg text-red-500 text-[10px] font-black uppercase mb-2">Comprar Créditos</button>
                 <button id="btn-verify" onclick="verifyPayment()" class="w-full text-[8px] text-zinc-600 font-bold uppercase py-2">Sincronizar Pagamento</button>
             </div>
         </aside>
@@ -116,14 +132,17 @@
             <header>
                 <button onclick="toggleMenu()" class="text-white bg-zinc-900 w-10 h-10 rounded-lg border border-zinc-800"><i class="fa-solid fa-bars"></i></button>
                 <span id="active-title" class="text-[10px] font-black uppercase text-zinc-500 truncate max-w-[150px]">Terminal</span>
-                <button onclick="logout()" class="text-zinc-600"><i class="fa-solid fa-power-off"></i></button>
+                <div class="flex gap-4 items-center">
+                    <button onclick="openKeyModal()" class="text-zinc-600 text-xs"><i class="fa-solid fa-key"></i></button>
+                    <button onclick="logout()" class="text-zinc-600"><i class="fa-solid fa-power-off"></i></button>
+                </div>
             </header>
 
             <div id="chat-window"></div>
 
             <footer>
                 <div id="lock-notice" class="hidden text-[9px] text-center mb-2 text-red-500 font-black uppercase tracking-widest animate-pulse">
-                    Saturação de Dados. Reset em: <span id="reset-timer">00:00:00</span>
+                    Limite Excedido. Reset em: <span id="reset-timer">00:00:00</span>
                 </div>
                 <div id="input-area" class="input-box">
                     <input id="prompt" class="flex-1 bg-transparent p-4 text-sm text-white outline-none" placeholder="Comando..." onkeydown="if(event.key==='Enter') send()">
@@ -136,10 +155,11 @@
     </div>
 
     <!-- STORE MODAL -->
-    <div id="store-modal" class="modal hidden">
-        <div class="bg-zinc-950 border border-zinc-800 p-8 rounded-3xl w-full max-w-xs text-center">
+    <div id="store-modal" class="modal hidden" onclick="if(event.target === this) closeStore()">
+        <div class="modal-content text-center">
+            <div class="close-modal" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
             <h2 class="text-white font-black text-xl mb-6 italic">LOJA <span class="text-red-600">VIP</span></h2>
-            <div class="space-y-3 mb-8">
+            <div class="space-y-3 mb-4">
                 <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 text-left">
                     <div class="flex justify-between font-black text-[10px] mb-1"><span class="text-green-500">BÁSICO</span> <span class="text-white">R$ 10</span></div>
                     <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" onclick="logAction('Básico')" class="block w-full bg-white text-black py-3 rounded-lg font-black text-center text-[10px] mt-4 uppercase">Assinar PIX</a>
@@ -149,7 +169,16 @@
                     <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" onclick="logAction('Avançado')" class="block w-full bg-red-600 text-white py-3 rounded-lg font-black text-center text-[10px] mt-4 uppercase">Assinar PIX</a>
                 </div>
             </div>
-            <button onclick="closeStore()" class="text-zinc-600 font-bold text-[10px] uppercase">Abortar Operação</button>
+        </div>
+    </div>
+
+    <!-- API KEY MODAL -->
+    <div id="key-modal" class="modal hidden" onclick="if(event.target === this) closeKeyModal()">
+        <div class="modal-content text-center">
+            <div class="close-modal" onclick="closeKeyModal()"><i class="fa-solid fa-xmark"></i></div>
+            <h2 class="text-white font-black text-xs mb-6 uppercase tracking-widest">Configurar Chave Gemini</h2>
+            <input type="password" id="api-input" class="w-full bg-zinc-950 border border-zinc-800 p-4 rounded-xl mb-4 text-white text-xs text-center" placeholder="Cole sua API Key aqui">
+            <button onclick="saveKey()" class="w-full bg-red-600 p-4 rounded-xl font-black text-[10px] uppercase">Salvar Configuração</button>
         </div>
     </div>
 
@@ -174,36 +203,31 @@
         const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1467217014157213759/h8mtZp6daIb7gNwzKdHZyGaoeHj6qnJxDLOrsTM6TdZYQWjMJ_H-0Z3sPHMAXjt09rL8";
 
         let userData = { plan: 'free', used: 0, lastReset: Date.now() };
-        let sessions = JSON.parse(localStorage.getItem('da_v54_sessions')) || [];
+        let sessions = JSON.parse(localStorage.getItem('da_v55_sessions')) || [];
         let currentId = null;
-        let geminiKey = localStorage.getItem('da_gemini_v54') || "";
+        let geminiKey = localStorage.getItem('da_gemini_v55') || "";
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                
                 onSnapshot(doc(db, "users", user.uid), (snap) => {
                     if (snap.exists()) {
                         const data = snap.data();
-                        if(userData.plan === 'free' && data.plan !== 'free') {
-                            showToast("Protocolo de Upgrade Aceite! Nível " + data.plan.toUpperCase());
-                        }
+                        if(userData.plan === 'free' && data.plan !== 'free') showToast("Upgrade Ativado com Sucesso!");
                         userData = data;
-                        if(data.apiKey) { geminiKey = data.apiKey; localStorage.setItem('da_gemini_v54', geminiKey); }
+                        if(data.apiKey) { geminiKey = data.apiKey; localStorage.setItem('da_gemini_v55', geminiKey); }
                     } else {
                         setDoc(doc(db, "users", user.uid), { plan: 'free', used: 0, lastReset: Date.now(), email: user.email });
                     }
                     updateUI();
                 });
-
                 if(sessions.length > 0) loadSession(sessions[0].id); else newConversation();
             } else {
                 document.getElementById('auth-gate').classList.remove('hidden');
             }
         });
 
-        // Função de Aviso Visual (Toast)
         function showToast(msg) {
             const container = document.getElementById('notification-container');
             const toast = document.createElement('div');
@@ -217,42 +241,19 @@
             const user = auth.currentUser;
             if(!user) return;
             await fetch(DISCORD_WEBHOOK, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: title,
-                        description: desc,
-                        color: color,
-                        fields: [
-                            { name: "👤 Email", value: user.email },
-                            { name: "🆔 UID para Copiar", value: `\`${user.uid}\`` }
-                        ],
-                        timestamp: new Date().toISOString()
-                    }]
-                })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [{ title, description: desc, color, fields: [{ name: "👤 Email", value: user.email }, { name: "🆔 UID", value: `\`${user.uid}\`` }], timestamp: new Date().toISOString() }] })
             });
         }
 
-        window.logAction = (plan) => {
-            showToast("A abrir Mercado Pago...");
-            notifyDiscord("🛒 PAGAMENTO INICIADO", `Utilizador iniciou o pagamento do plano: **${plan}**`, 5763719);
-        };
+        window.logAction = (p) => { showToast("A processar..."); notifyDiscord("🛒 PAGAMENTO", `Utilizador clicou no plano: ${p}`, 5763719); };
         
         window.verifyPayment = () => {
             const btn = document.getElementById('btn-verify');
-            btn.innerText = "Sincronizando...";
-            btn.style.opacity = "0.5";
-            btn.disabled = true;
-
-            showToast("Pedido de verificação enviado!");
-            notifyDiscord("🔍 PEDIDO DE LIBERAÇÃO", "O cliente diz que já pagou. Por favor, verifique o sistema.", 16776960);
-            
-            setTimeout(() => {
-                btn.innerText = "Sincronizar Pagamento";
-                btn.style.opacity = "1";
-                btn.disabled = false;
-            }, 10000);
+            btn.innerText = "Sincronizando..."; btn.disabled = true;
+            showToast("Aviso enviado para o Discord!");
+            notifyDiscord("🔍 VERIFICAÇÃO", "O utilizador solicitou libertação manual.", 16776960);
+            setTimeout(() => { btn.innerText = "Sincronizar Pagamento"; btn.disabled = false; }, 10000);
         };
 
         function updateUI() {
@@ -303,15 +304,23 @@
         window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('open');
         window.openStore = () => document.getElementById('store-modal').classList.remove('hidden');
         window.closeStore = () => document.getElementById('store-modal').classList.add('hidden');
+        window.openKeyModal = () => document.getElementById('key-modal').classList.remove('hidden');
+        window.closeKeyModal = () => document.getElementById('key-modal').classList.add('hidden');
+
+        window.saveKey = async () => {
+            const val = document.getElementById('api-input').value.trim();
+            if(!val) return;
+            geminiKey = val; localStorage.setItem('da_gemini_v55', val);
+            if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val });
+            showToast("Chave Salva!");
+            closeKeyModal();
+        }
 
         window.newConversation = () => {
-            if(userData.plan === 'free' && sessions.length >= 2) {
-                showToast("Limite de Protocolos atingido (FREE)");
-                return;
-            }
+            if(userData.plan === 'free' && sessions.length >= 2) { showToast("Limite Free: 2 Conversas"); return; }
             const id = Date.now();
-            sessions.unshift({ id, title: "Protocolo Novo", messages: [{ role: 'ai', text: 'Rafael, terminal operacional. Aguardo ordens.' }] });
-            localStorage.setItem('da_v54_sessions', JSON.stringify(sessions));
+            sessions.unshift({ id, title: "Protocolo Novo", messages: [{ role: 'ai', text: 'Rafael, terminal v55 operacional.' }] });
+            localStorage.setItem('da_v55_sessions', JSON.stringify(sessions));
             refreshList(); loadSession(id);
         };
 
@@ -332,7 +341,7 @@
                 const isLocked = userData.plan === 'free' && idx >= 2;
                 const item = document.createElement('div');
                 item.className = `chat-item ${s.id === currentId ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
-                item.innerHTML = `<span><i class="fa-solid fa-code mr-2 opacity-50"></i>${s.title}</span> ${isLocked ? '<i class="fa-solid fa-lock text-red-900"></i>' : ''}`;
+                item.innerHTML = `<span><i class="fa-solid fa-terminal mr-2 opacity-50"></i>${s.title}</span> ${isLocked ? '<i class="fa-solid fa-lock"></i>' : ''}`;
                 if(!isLocked) item.onclick = () => loadSession(s.id);
                 list.appendChild(item);
             });
@@ -352,11 +361,11 @@
                     body: JSON.stringify({ contents: [{ parts: [{ text: val }] }] })
                 });
                 const data = await res.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro de rede.";
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro.";
                 renderBubble('ai', text);
                 s.messages.push({ role: 'user', text: val }, { role: 'ai', text: text });
-                localStorage.setItem('da_v54_sessions', JSON.stringify(sessions));
-            } catch (e) { renderBubble('ai', "CONEXÃO PERDIDA."); }
+                localStorage.setItem('da_v55_sessions', JSON.stringify(sessions));
+            } catch (e) { renderBubble('ai', "ERRO."); }
         }
 
         function renderBubble(role, text) {
