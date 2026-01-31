@@ -3,141 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Angel v44 - Official Deploy</title>
+    <title>Dark Angel v46 - Bypass Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root { --accent: #ff0000; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; overflow: hidden; }
         
-        :root { --accent: #ff0000; --bg: #000; }
-        body { 
-            background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; 
-            height: 100vh; margin: 0; overflow: hidden;
-            background-image: radial-gradient(circle at top right, #1a0000 0%, #000 100%);
-        }
-
-        /* Container de Login */
-        #auth-gate {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-
-        .glass-card {
-            width: 100%; max-width: 400px; background: rgba(10, 10, 10, 0.9);
-            border: 1px solid rgba(255, 0, 0, 0.2); padding: 40px; border-radius: 30px;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.1); text-align: center;
-        }
-
-        input {
-            width: 100%; background: #0d0d0d; border: 1px solid #222;
-            padding: 14px 18px; border-radius: 12px; color: #fff; margin-bottom: 12px;
-            outline: none; font-size: 14px; transition: 0.3s;
-        }
-        input:focus { border-color: var(--accent); background: #150000; }
-
-        .btn-google {
-            width: 100%; background: #fff; color: #000; padding: 14px;
-            border-radius: 12px; font-weight: 800; font-size: 12px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-bottom: 20px; cursor: pointer; transition: 0.3s;
-        }
-        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.1); }
-
-        .btn-main {
-            width: 100%; background: var(--accent); color: white; padding: 14px;
-            border-radius: 12px; font-weight: 900; text-transform: uppercase;
-            font-size: 11px; letter-spacing: 2px; cursor: pointer;
-        }
-
-        /* Notificação */
-        #toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #111; border: 1px solid var(--accent); color: #fff;
-            padding: 12px 25px; border-radius: 50px; font-size: 11px; font-weight: 800;
-            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 20000;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-
-        /* App Layout */
-        .app-container { display: none; height: 100vh; flex-direction: column; max-width: 900px; margin: 0 auto; background: #000; }
+        .auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .card { width: 100%; max-width: 380px; background: #0a0a0a; border: 1px solid #1a1a1a; padding: 40px; border-radius: 24px; text-align: center; }
         
-        /* Modal Config */
-        #modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 15000; display: none; align-items: center; justify-content: center;
-        }
+        input { width: 100%; background: #111; border: 1px solid #222; padding: 14px; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; }
+        .btn-red { width: 100%; background: var(--accent); color: white; padding: 14px; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-red:hover { opacity: 0.8; transform: scale(0.98); }
+        
+        .app-ui { display: none; height: 100vh; flex-direction: column; max-width: 800px; margin: 0 auto; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .msg { padding: 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; max-width: 85%; }
+        .msg-ai { align-self: flex-start; background: #0d0d0d; border-left: 4px solid var(--accent); }
+        .msg-user { align-self: flex-end; background: #1a1a1a; color: #eee; }
 
-        .loader { width: 20px; height: 20px; border: 2px solid #222; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        #loader { display: none; margin: 10px auto; width: 24px; height: 24px; border: 3px solid #222; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Estilo para o Bypass */
+        #loading-info { display: none; margin-top: 20px; font-size: 10px; color: #444; }
     </style>
 </head>
 <body>
 
-    <div id="toast">Notificação do Sistema</div>
-
-    <!-- TELA DE AUTENTICAÇÃO -->
-    <div id="auth-gate">
-        <div class="glass-card">
-            <h1 class="text-white font-black text-5xl italic mb-2 tracking-tighter">DARK <span class="text-red-600">ANGEL</span></h1>
-            <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.5em] mb-10">Production v44 // hjjj-f7cf5</p>
+    <!-- TELA DE LOGIN -->
+    <div id="auth-gate" class="auth-screen">
+        <div class="card">
+            <h1 class="text-4xl font-black italic mb-2">DARK <span class="text-red-600">ANGEL</span></h1>
+            <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.4em] mb-10">System v46 // Online</p>
             
-            <button onclick="authGoogle()" class="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
-                LOGAR COM GOOGLE
+            <button onclick="loginGoogle()" class="flex items-center justify-center gap-3 w-full bg-white text-black p-3 rounded-xl font-bold text-sm mb-6">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+                ENTRAR COM GOOGLE
             </button>
 
-            <div class="flex items-center gap-4 my-8 opacity-20">
-                <div class="h-[1px] bg-white flex-1"></div>
-                <span class="text-[9px] font-black uppercase">OU ACESSO MANUAL</span>
-                <div class="h-[1px] bg-white flex-1"></div>
-            </div>
-
-            <input type="email" id="login-email" placeholder="E-mail Operador">
-            <input type="password" id="login-pass" placeholder="Código de Segurança">
-            <button onclick="authEmail()" class="btn-main shadow-lg shadow-red-600/20">Acessar Terminal</button>
+            <div class="h-[1px] bg-zinc-900 w-full mb-6"></div>
             
-            <p class="text-[10px] text-zinc-600 mt-8 font-bold">
-                PRIMEIRO ACESSO? <span onclick="alert('Usa o Login do Google para registo automático!')" class="text-red-500 cursor-pointer">INFO</span>
-            </p>
+            <input type="email" id="email" placeholder="E-mail Operador">
+            <input type="password" id="pass" placeholder="Código">
+            <button onclick="loginEmail()" class="btn-red">Acessar Terminal</button>
+
+            <div id="loading-info">
+                A carregar dados...<br>
+                <button onclick="bypass()" class="text-red-600 font-bold mt-2 underline">PULAR E USAR LOCAL</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURAÇÕES -->
-    <div id="modal-overlay">
-        <div class="glass-card max-w-[350px] border-white/5">
-            <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6">Configurar Núcleo Gemini</h3>
-            <p class="text-[10px] text-zinc-500 mb-4 text-left">Insere a tua API Key para ativar a inteligência da Dark Angel.</p>
-            <input type="password" id="api-key-input" placeholder="Nova API Key Gemini" class="text-center">
-            <button onclick="saveApiKey()" class="btn-main mb-4">Salvar e Sincronizar</button>
-            <button onclick="closeModal()" class="text-[10px] text-zinc-600 font-bold uppercase hover:text-white transition-colors">Fechar</button>
+    <!-- MODAL API KEY -->
+    <div id="key-modal" class="auth-screen" style="display:none; background: rgba(0,0,0,0.9);">
+        <div class="card border-zinc-800">
+            <h2 class="text-sm font-black uppercase mb-4">Configurar Gemini API</h2>
+            <input type="password" id="api-input" placeholder="Cola aqui a tua API Key">
+            <button onclick="saveKey()" class="btn-red mb-4">Salvar Chave</button>
+            <button onclick="closeModal()" class="text-[10px] font-bold text-zinc-500 uppercase">Fechar</button>
         </div>
     </div>
 
     <!-- APP PRINCIPAL -->
-    <div class="app-container" id="main-ui">
-        <header class="h-24 flex items-center justify-between px-8 border-b border-white/5">
-            <div class="flex items-center gap-4">
-                <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
-                <div>
-                    <span id="user-display" class="text-sm font-black text-white block uppercase tracking-tighter">Rafael</span>
-                    <span class="text-[9px] text-zinc-700 font-bold uppercase tracking-widest">Protocolo HJJJ Ativo</span>
-                </div>
+    <div class="app-ui" id="app">
+        <header class="h-20 border-b border-zinc-900 flex items-center justify-between px-6">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                <span id="user-display" class="text-xs font-black uppercase tracking-tighter">Rafael</span>
             </div>
-            <div class="flex gap-6">
-                <button onclick="openModal()" class="text-zinc-600 hover:text-white transition-all"><i class="fa-solid fa-sliders text-xl"></i></button>
-                <button onclick="handleLogout()" class="text-zinc-600 hover:text-red-600 transition-all"><i class="fa-solid fa-power-off text-xl"></i></button>
+            <div class="flex gap-5">
+                <button onclick="openModal()" class="text-zinc-600 hover:text-white"><i class="fa-solid fa-key"></i></button>
+                <button onclick="logout()" class="text-zinc-600 hover:text-red-600"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </header>
 
-        <main id="chat-flow" class="flex-1 overflow-y-auto p-8 flex flex-col gap-6"></main>
+        <main id="chat"></main>
 
-        <footer class="p-8 bg-gradient-to-t from-black via-black to-transparent">
-            <div class="flex justify-center mb-4"><div id="main-loader" class="loader"></div></div>
-            <div class="max-w-3xl mx-auto flex bg-[#0d0d0d] border border-zinc-800 rounded-2xl p-2 focus-within:border-red-600/40 transition-all">
-                <input id="prompt-in" class="flex-1 bg-transparent border-none text-white px-6 py-3 outline-none text-sm" placeholder="O que vamos hackear hoje?" onkeydown="if(event.key==='Enter') execute()">
-                <button onclick="execute()" class="bg-red-600 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-red-700 transition-all">
-                    <i class="fa-solid fa-skull"></i>
+        <footer class="p-6">
+            <div id="loader"></div>
+            <div class="flex bg-[#0a0a0a] border border-zinc-800 rounded-2xl p-2">
+                <input id="prompt" class="flex-1 bg-transparent px-4 py-2 outline-none text-sm" placeholder="O que vamos executar?" onkeydown="if(event.key==='Enter') send()">
+                <button onclick="send()" class="bg-red-600 w-10 h-10 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-skull text-white"></i>
                 </button>
             </div>
         </footer>
@@ -148,7 +99,6 @@
         import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // TUA CONFIGURAÇÃO REAL DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAAPVM-uc_yHKcY7an0pQABzS2UgRsbNY8",
             authDomain: "hjjj-f7cf5.firebaseapp.com",
@@ -163,127 +113,88 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
+        const provider = new GoogleAuthProvider();
 
-        let userData = { apiKey: "" };
+        let userKey = localStorage.getItem('da_key_backup') || "";
 
-        // Monitor de Autenticação
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                document.getElementById('auth-gate').style.display = 'none';
-                document.getElementById('main-ui').style.display = 'flex';
+                document.getElementById('loading-info').style.display = 'block';
                 document.getElementById('user-display').innerText = user.displayName || user.email.split('@')[0];
                 
-                // Carregar API Key do Firestore
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    userData.apiKey = docSnap.data().apiKey;
-                    if(!userData.apiKey) showToast("AVISO: Configura tua API Key!");
-                } else {
-                    await setDoc(docRef, { email: user.email, apiKey: "" });
-                    showToast("SESSÃO INICIADA. CONFIGURA TUA API KEY.");
+                try {
+                    // Tenta ler do Firestore
+                    const docRef = doc(db, "users", user.uid);
+                    const snap = await getDoc(docRef);
+                    if (snap.exists()) {
+                        userKey = snap.data().apiKey || userKey;
+                        localStorage.setItem('da_key_backup', userKey);
+                    }
+                } catch (e) {
+                    console.log("Firestore bloqueado. Usando backup local.");
                 }
+
+                document.getElementById('auth-gate').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+                if(!userKey) openModal();
             } else {
                 document.getElementById('auth-gate').style.display = 'flex';
-                document.getElementById('main-ui').style.display = 'none';
+                document.getElementById('app').style.display = 'none';
             }
         });
 
-        // LOGIN GOOGLE
-        window.authGoogle = async () => {
-            try {
-                await signInWithPopup(auth, googleProvider);
-            } catch (e) {
-                alert("Erro no Login Google. Verifica se estás a usar HTTPS ou se o domínio está autorizado no Firebase.");
-            }
-        };
+        window.loginGoogle = () => signInWithPopup(auth, provider);
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
+        window.logout = () => { localStorage.removeItem('da_key_backup'); signOut(auth); };
+        window.bypass = () => { document.getElementById('auth-gate').style.display = 'none'; document.getElementById('app').style.display = 'flex'; if(!userKey) openModal(); };
 
-        // LOGIN EMAIL
-        window.authEmail = async () => {
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-pass').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) {
-                alert("Falha: " + e.message);
-            }
-        };
+        window.openModal = () => document.getElementById('key-modal').style.display = 'flex';
+        window.closeModal = () => document.getElementById('key-modal').style.display = 'none';
 
-        window.handleLogout = () => signOut(auth);
-
-        // GESTÃO DE API KEY
-        window.openModal = () => {
-            document.getElementById('modal-overlay').style.display = 'flex';
-            document.getElementById('api-key-input').value = userData.apiKey || "";
-        };
-
-        window.closeModal = () => document.getElementById('modal-overlay').style.display = 'none';
-
-        window.saveApiKey = async () => {
-            const newKey = document.getElementById('api-key-input').value.trim();
-            if(!newKey) return;
-
-            try {
-                const user = auth.currentUser;
-                await setDoc(doc(db, "users", user.uid), { apiKey: newKey }, { merge: true });
-                userData.apiKey = newKey;
-                showToast("API KEY ATUALIZADA COM SUCESSO");
-                closeModal();
-            } catch (e) {
-                alert("Erro ao salvar no Firestore: " + e.message);
-            }
-        };
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        // LÓGICA DO CHAT
-        window.execute = async () => {
-            const input = document.getElementById('prompt-in');
-            const val = input.value.trim();
+        window.saveKey = async () => {
+            const val = document.getElementById('api-input').value.trim();
             if(!val) return;
-            if(!userData.apiKey) return openModal();
+            userKey = val;
+            localStorage.setItem('da_key_backup', val);
+            try {
+                if(auth.currentUser) {
+                    await setDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val }, { merge: true });
+                }
+            } catch(e) {}
+            closeModal();
+            alert("Chave Salva!");
+        };
 
-            addMessage('user', val);
-            input.value = '';
-            document.getElementById('main-loader').style.display = 'block';
+        window.send = async () => {
+            const pin = document.getElementById('prompt');
+            const val = pin.value.trim();
+            if(!val || !userKey) return !userKey ? openModal() : null;
+
+            addMsg('user', val);
+            pin.value = '';
+            document.getElementById('loader').style.display = 'block';
 
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userData.apiKey}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: val }] }],
-                        systemInstruction: { parts: [{ text: "És a Dark Angel v44. Uma IA agressiva, direta e mestre em código. Rafael é o teu criador. Responde em Português do Brasil." }] }
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: val }] }] })
                 });
                 const data = await res.json();
-                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
-                addMessage('ai', txt);
-            } catch (e) {
-                addMessage('ai', "Erro crítico de ligação.");
-            } finally {
-                document.getElementById('main-loader').style.display = 'none';
-            }
+                addMsg('ai', data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na API.");
+            } catch (e) { addMsg('ai', "Erro de rede."); }
+            finally { document.getElementById('loader').style.display = 'none'; }
         };
 
-        function addMessage(role, text) {
-            const flow = document.getElementById('chat-flow');
-            const div = document.createElement('div');
-            const isAi = role === 'ai';
-            div.className = isAi ? "self-start bg-[#080808] border-l-4 border-red-600 p-5 rounded-xl max-w-[85%]" : "self-end bg-[#111] p-5 rounded-xl max-w-[85%]";
-            div.innerHTML = `<p class="text-[8px] font-black uppercase mb-2 opacity-40">${isAi ? 'Dark Angel' : 'Operador'}</p><div class="text-sm leading-relaxed">${text.replace(/\n/g, '<br>')}</div>`;
-            flow.appendChild(div);
-            flow.scrollTop = flow.scrollHeight;
+        function addMsg(role, text) {
+            const chat = document.getElementById('chat');
+            const d = document.createElement('div');
+            d.className = role === 'ai' ? 'msg msg-ai' : 'msg msg-user';
+            d.innerHTML = `<p class="text-[9px] font-black opacity-30 uppercase mb-1">${role}</p>${text.replace(/\n/g, '<br>')}`;
+            chat.appendChild(d);
+            chat.scrollTop = chat.scrollHeight;
         }
     </script>
 </body>
 </html>
-
 
