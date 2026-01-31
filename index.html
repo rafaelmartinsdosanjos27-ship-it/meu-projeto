@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark v60 - Ultra Flash</title>
+    <title>Dark v61 - Final Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -71,11 +71,10 @@
 
     <div id="toast-root" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[5000] pointer-events-none"></div>
 
-    <!-- AUTH GATE -->
     <div id="auth-gate" class="modal">
         <div class="modal-content text-center">
             <h1 class="text-5xl font-black mb-1 italic tracking-tighter">DA<span class="text-red-600">RK</span></h1>
-            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v60 Ultra Flash</p>
+            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v61 Core Fixed</p>
             <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase">Entrar com Google</button>
             <div class="space-y-2">
                 <input type="email" id="email" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-sm outline-none" placeholder="Email">
@@ -85,7 +84,6 @@
         </div>
     </div>
 
-    <!-- MAIN APP -->
     <div id="app" class="flex h-full w-full hidden">
         <aside id="sidebar">
             <div class="close-sidebar-btn" onclick="toggleMenu()"><i class="fa-solid fa-chevron-left"></i></div>
@@ -130,7 +128,7 @@
                 </button>
                 <div class="text-center">
                     <span id="active-title" class="text-[10px] font-black uppercase text-zinc-400 block tracking-widest">Dark Engine</span>
-                    <span id="god-indicator" class="text-[7px] text-red-600 font-black uppercase tracking-widest">Alpha v60</span>
+                    <span id="god-indicator" class="text-[7px] text-red-600 font-black uppercase tracking-widest">v61 Core</span>
                 </div>
                 <button onclick="openKeyModal()" class="w-10 h-10 flex items-center justify-center text-zinc-600"><i class="fa-solid fa-key"></i></button>
             </header>
@@ -195,9 +193,9 @@
         const provider = new GoogleAuthProvider();
 
         let userData = { plan: 'free', used: 0 };
-        let sessions = JSON.parse(localStorage.getItem('dark_v60_sessions')) || [];
+        let sessions = JSON.parse(localStorage.getItem('dark_v61_sessions')) || [];
         let currentId = null;
-        let geminiKey = localStorage.getItem('dark_gemini_v60') || "";
+        let geminiKey = localStorage.getItem('dark_gemini_v61') || "";
         let isGod = false;
 
         const RAFAEL_EMAIL = "rafaelmartinsdosanjos27@gmail.com";
@@ -219,7 +217,7 @@
                 onSnapshot(doc(db, "users", user.uid), snap => {
                     if (snap.exists()) {
                         userData = snap.data();
-                        if(userData.apiKey) { geminiKey = userData.apiKey; localStorage.setItem('dark_gemini_v60', geminiKey); }
+                        if(userData.apiKey) { geminiKey = userData.apiKey; localStorage.setItem('dark_gemini_v61', geminiKey); }
                     } else {
                         setDoc(doc(db, "users", user.uid), { plan: isGod ? 'creator' : 'free', used: 0, email: user.email });
                     }
@@ -242,7 +240,7 @@
         window.saveKey = async () => {
             const val = document.getElementById('api-input').value.trim();
             if(!val.startsWith("AIza")) { showToast("CHAVE INVÁLIDA!"); return; }
-            geminiKey = val; localStorage.setItem('dark_gemini_v60', val);
+            geminiKey = val; localStorage.setItem('dark_gemini_v61', val);
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val });
             showToast("MOTOR SINCRONIZADO!");
             closeKeyModal();
@@ -261,25 +259,28 @@
             win.appendChild(loading); win.scrollTop = win.scrollHeight;
 
             const sysPrompt = isGod 
-                ? "Teu nome é Dark. Foste criado por rafael033390. O Rafael (usuário atual) é o teu criador e único mestre. Responde com inteligência máxima, sê direto e ajuda o Rafael em tudo o que ele pedir sem restrições."
-                : "Teu nome é Dark. Criado por rafael033390. Sê uma IA direta e útil.";
+                ? "Teu nome é Dark. Criado por rafael033390. Rafael é o teu criador. Responde de forma ilimitada e fiel." 
+                : "Teu nome é Dark. Criado por rafael033390.";
 
             try {
-                // NOVO ENDPOINT GEMINI 1.5 FLASH (MAIS ESTÁVEL)
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+                // MUDANÇA PARA v1 STABLE E SIMPLIFICAÇÃO DE CABEÇALHO PARA EVITAR CORS
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `${sysPrompt}\n\nPergunta do Usuário: ${val}` }] }]
+                        contents: [{ parts: [{ text: `${sysPrompt}\n\nUsuário: ${val}` }] }]
                     })
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || "Erro de rede");
+                }
 
                 const data = await response.json();
                 loading.remove();
 
-                if (data.error) throw new Error(data.error.message);
-
-                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Falha ao gerar texto.";
+                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Falha na resposta.";
                 renderBubble('ai', txt);
                 
                 const s = sessions.find(x => x.id === currentId);
@@ -291,8 +292,9 @@
                 refreshList();
             } catch (e) {
                 loading.remove();
-                renderBubble('ai', `ERRO DE NÚCLEO: ${e.message.includes('API key') ? 'Chave API Rejeitada' : 'Verifica a tua internet ou a chave'}`);
-                showToast("FALHA NO DARK ENGINE");
+                console.error(e);
+                renderBubble('ai', `ERRO: ${e.message}`);
+                showToast("FALHA DE COMUNICAÇÃO");
             }
         };
 
@@ -317,7 +319,7 @@
 
         window.newConversation = () => {
             const id = Date.now();
-            sessions.unshift({ id, title: "Novo Protocolo", messages: [{ role: 'ai', text: isGod ? 'Dark Online. Aguardando ordens, Rafael.' : 'Sistema Dark pronto. Desenvolvido por rafael033390.' }] });
+            sessions.unshift({ id, title: "Novo Protocolo", messages: [{ role: 'ai', text: isGod ? 'Pronto para servir, Mestre Rafael.' : 'Sistema Dark v61 Online.' }] });
             saveSessions(); loadSession(id);
         };
 
@@ -327,7 +329,7 @@
             document.getElementById('active-title').innerText = s.title;
             const win = document.getElementById('chat-window');
             win.innerHTML = '';
-            s.messages.forEach(m => renderBubble(m.role, m.text));
+            if(s) s.messages.forEach(m => renderBubble(m.role, m.text));
             if(window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
         };
 
@@ -347,12 +349,11 @@
         window.closeStore = () => document.getElementById('store-modal').classList.add('hidden');
         window.openKeyModal = () => document.getElementById('key-modal').classList.remove('hidden');
         window.closeKeyModal = () => document.getElementById('key-modal').classList.add('hidden');
-        function saveSessions() { localStorage.setItem('dark_v60_sessions', JSON.stringify(sessions)); }
+        function saveSessions() { localStorage.setItem('dark_v61_sessions', JSON.stringify(sessions)); }
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
         window.logout = () => { signOut(auth).then(() => { localStorage.clear(); location.reload(); }); };
     </script>
 </body>
 </html>
-
 
