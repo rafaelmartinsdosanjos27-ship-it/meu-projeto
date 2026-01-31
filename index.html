@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark v68 - Universal</title>
+    <title>Dark Angel v69 - Auto-Switch</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,33 +38,38 @@
         .modal-content {
             background: #0d0d0d; border: 1px solid #222; 
             width: 100%; max-width: 350px; border-radius: 35px; 
-            padding: 30px 20px; position: relative;
+            padding: 35px 25px; position: relative; text-align: center;
         }
         .big-close-x {
-            position: absolute; top: -25px; right: 10px; width: 60px; height: 60px;
+            position: absolute; top: -20px; right: 10px; width: 50px; height: 50px;
             background: #ff0000; border-radius: 50%; display: flex; 
             align-items: center; justify-content: center; color: white;
-            font-size: 28px; z-index: 4001; border: 5px solid #000;
+            font-size: 24px; z-index: 5001; border: 5px solid #000;
         }
 
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
         .bubble { max-width: 85%; padding: 15px 20px; border-radius: 22px; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
         .bubble-ai { align-self: flex-start; background: #111; border-left: 4px solid var(--red); }
-        .bubble-user { align-self: flex-end; background: #1a1a1a; border: 1px solid #333; }
+        .bubble-user { align-self: flex-end; background: #222; border: 1px solid #333; }
         
         .god-mode-active .bubble-ai { border-left-color: var(--gold); }
         .god-mode-active #msg-progress { background: var(--gold) !important; }
 
-        /* Blocos de Código */
-        .code-box { background: #000; border: 1px solid #333; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-        .code-header { background: #111; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .code-content { padding: 12px; font-family: monospace; font-size: 11px; color: #ff5555; overflow-x: auto; white-space: pre; }
+        .toast {
+            background: #ff0000; color: white; padding: 12px 24px; border-radius: 50px;
+            font-size: 10px; font-weight: 900; text-transform: uppercase;
+        }
 
         .typing-dots { display: flex; gap: 4px; padding: 5px; }
         .dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: pulse 1.4s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        .plan-card {
+            background: #111; border: 1px solid #222; padding: 15px; border-radius: 20px;
+            margin-bottom: 10px; text-align: left; transition: 0.2s;
+        }
     </style>
 </head>
 <body>
@@ -72,10 +77,12 @@
     <div id="toast-root" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[5000] pointer-events-none"></div>
 
     <div id="auth-gate" class="modal">
-        <div class="modal-content text-center">
+        <div class="modal-content">
             <h1 class="text-5xl font-black mb-1 italic tracking-tighter text-white">DA<span class="text-red-600">RK</span></h1>
-            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v68 Universal Engine</p>
-            <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase">Entrar com Google</button>
+            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v69 Auto-Switch</p>
+            <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 uppercase flex items-center justify-center gap-2">
+                <i class="fa-brands fa-google"></i> Entrar com Google
+            </button>
             <div class="space-y-2">
                 <input type="email" id="email" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-sm outline-none" placeholder="Email">
                 <input type="password" id="pass" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-white text-sm outline-none" placeholder="Senha">
@@ -87,20 +94,20 @@
     <div id="app" class="flex h-full w-full hidden">
         <aside id="sidebar">
             <div class="close-sidebar-btn" onclick="toggleMenu()"><i class="fa-solid fa-chevron-left"></i></div>
-            <div class="p-6 h-full flex flex-col">
+            <div class="p-6">
                 <div class="bg-black/40 p-5 rounded-3xl border border-zinc-900 mb-8 flex items-center gap-4">
                     <div id="creator-avatar" class="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center border-2 border-zinc-700">
                         <i class="fa-solid fa-user text-zinc-600"></i>
                     </div>
                     <div>
-                        <p class="text-[8px] text-zinc-500 uppercase font-black">Conta</p>
+                        <p class="text-[8px] text-zinc-500 uppercase font-black">Operador</p>
                         <p id="user-display-name" class="text-sm font-black text-white italic">...</p>
                     </div>
                 </div>
 
                 <div class="bg-zinc-950 p-5 rounded-3xl border border-zinc-900 mb-6">
                     <div class="flex justify-between items-center mb-3">
-                        <span class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Limite</span>
+                        <span class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Licença</span>
                         <div id="plan-display"></div>
                     </div>
                     <div id="msg-count" class="text-2xl font-black mb-1 italic">0/0</div>
@@ -109,26 +116,25 @@
                     </div>
                 </div>
 
-                <button onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-2xl font-black text-[10px] uppercase border border-zinc-800 mb-6">+ Novo Chat</button>
-                <div id="chat-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-2"></div>
+                <button onclick="newConversation()" class="w-full bg-zinc-900 p-4 rounded-2xl font-black text-[10px] uppercase border border-zinc-800 mb-4">+ Novo Protocolo</button>
+                <div id="chat-list" class="space-y-2 overflow-y-auto max-h-[180px] mb-4 pr-2"></div>
                 
                 <a href="https://discord.gg/nvuGhKD25" target="_blank" class="block w-full bg-[#5865F2] text-white py-3 rounded-xl font-black text-[10px] uppercase text-center mb-4"><i class="fa-brands fa-discord mr-2"></i>Discord Rafael</a>
-
-                <div class="pt-2 border-t border-zinc-900 space-y-2">
-                    <button onclick="openKeyModal()" class="w-full text-zinc-500 text-[9px] font-black uppercase text-left pl-2"><i class="fa-solid fa-key mr-2"></i> Configurar Chave</button>
-                    <button onclick="logout()" class="w-full text-zinc-800 text-[8px] font-black uppercase text-left pl-2">Sair</button>
-                </div>
+            </div>
+            <div class="mt-auto p-6 border-t border-zinc-900 space-y-3">
+                <button onclick="openStore()" id="store-btn" class="w-full bg-red-600 p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-red-900/40">Loja VIP</button>
+                <button onclick="logout()" class="w-full text-zinc-700 text-[8px] font-black uppercase">Sair</button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col w-full relative">
-            <header class="h-16 flex items-center justify-between px-4 border-b border-zinc-900 bg-black/50 backdrop-blur-md">
+            <header class="h-16 flex items-center justify-between px-4 bg-black/50 backdrop-blur-xl border-b border-zinc-900">
                 <button onclick="toggleMenu()" class="text-white bg-zinc-900 w-12 h-12 rounded-xl flex items-center justify-center border border-zinc-800">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <div class="text-center">
-                    <span id="active-title" class="text-[10px] font-black uppercase text-zinc-400 block tracking-widest">Dark v68</span>
-                    <span id="god-indicator" class="text-[7px] text-red-600 font-black uppercase tracking-widest">System Ready</span>
+                    <span id="active-title" class="text-[10px] font-black uppercase text-zinc-400 block tracking-widest">Dark v69</span>
+                    <span id="god-indicator" class="text-[7px] text-red-600 font-black uppercase tracking-widest">Auto-Engine</span>
                 </div>
                 <button onclick="openKeyModal()" class="w-10 h-10 flex items-center justify-center text-zinc-600"><i class="fa-solid fa-key"></i></button>
             </header>
@@ -137,7 +143,7 @@
 
             <footer class="p-4 bg-black">
                 <div class="flex gap-2 bg-zinc-900/40 rounded-2xl p-2 border border-zinc-800 focus-within:border-red-600 transition-all">
-                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Comando..." onkeydown="if(event.key==='Enter') send()">
+                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Enviar comando..." onkeydown="if(event.key==='Enter') send()">
                     <button id="send-btn" onclick="send()" class="bg-red-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-transform">
                         <i class="fa-solid fa-paper-plane text-xs text-white"></i>
                     </button>
@@ -147,29 +153,29 @@
     </div>
 
     <!-- Modais -->
-    <div id="store-modal" class="modal hidden">
+    <div id="key-modal" class="modal hidden">
         <div class="modal-content">
-            <div class="big-close-x" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
-            <h2 class="text-white font-black text-center text-xl mb-4 italic">LOJA <span class="text-red-600">DARK</span></h2>
-            <div class="space-y-4">
-                <div class="bg-zinc-900 p-5 rounded-3xl border border-zinc-800">
-                    <div class="flex justify-between font-black text-xs mb-1"><span>BÁSICO</span> <span class="text-white">R$ 10</span></div>
-                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block w-full bg-white text-black py-3 rounded-xl font-black text-center text-[9px] mt-4 uppercase">Comprar</a>
-                </div>
-                <div class="bg-red-950/20 p-5 rounded-3xl border border-red-600/30">
-                    <div class="flex justify-between font-black text-xs mb-1"><span>AVANÇADO</span> <span class="text-white">R$ 35</span></div>
-                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block w-full bg-red-600 text-white py-3 rounded-xl font-black text-center text-[9px] mt-4 uppercase">Comprar</a>
-                </div>
-            </div>
+            <div class="big-close-x" onclick="closeKeyModal()"><i class="fa-solid fa-xmark"></i></div>
+            <h2 class="text-white font-black text-xs uppercase mb-6 tracking-widest">Chave API Google</h2>
+            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white text-xs text-center mb-6" placeholder="Cole a chave aqui (AIza...)">
+            <button onclick="saveKey()" class="w-full bg-red-600 p-5 rounded-2xl font-black text-xs uppercase text-white shadow-lg">Salvar e Testar</button>
         </div>
     </div>
 
-    <div id="key-modal" class="modal hidden">
-        <div class="modal-content text-center">
-            <div class="big-close-x" onclick="closeKeyModal()"><i class="fa-solid fa-xmark"></i></div>
-            <h2 class="text-white font-black text-[10px] uppercase mb-6 tracking-widest">Configuração API</h2>
-            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white text-xs text-center mb-6" placeholder="Chave Gemini AI">
-            <button onclick="saveKey()" class="w-full bg-red-600 p-5 rounded-2xl font-black text-xs uppercase shadow-lg">Salvar e Conectar</button>
+    <div id="store-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="big-close-x" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
+            <h2 class="text-white font-black text-xl mb-4 italic">UPGRADE</h2>
+            <div class="space-y-4">
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <div class="flex justify-between font-black text-xs mb-1"><span>BASICO</span> <span class="text-white">R$ 10</span></div>
+                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block w-full bg-white text-black py-3 rounded-xl font-black text-center text-[9px] mt-2 uppercase">Comprar</a>
+                </div>
+                <div class="bg-red-950/20 p-4 rounded-2xl border border-red-600/30">
+                    <div class="flex justify-between font-black text-xs mb-1"><span>AVANÇADO</span> <span class="text-white">R$ 35</span></div>
+                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block w-full bg-red-600 text-white py-3 rounded-xl font-black text-center text-[9px] mt-2 uppercase">Comprar</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -193,40 +199,45 @@
         const provider = new GoogleAuthProvider();
 
         let userData = { plan: 'free', used: 0 };
-        let sessions = JSON.parse(localStorage.getItem('dark_v68_sess')) || [];
+        let sessions = JSON.parse(localStorage.getItem('dark_v69_sess')) || [];
         let currentId = null;
-        let geminiKey = localStorage.getItem('dark_key_v68') || "";
+        let geminiKey = localStorage.getItem('dark_key_v69') || "";
         let isGod = false;
-
         const RAFAEL_EMAIL = "rafaelmartinsdosanjos27@gmail.com";
+
+        // Lista de Modelos para Tentar (Em ordem de preferência)
+        const MODELS = [
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-pro",
+            "gemini-1.0-pro"
+        ];
 
         onAuthStateChanged(auth, user => {
             if (user) {
                 isGod = (user.email === RAFAEL_EMAIL);
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                document.getElementById('user-display-name').innerText = isGod ? "Rafael (Mestre)" : (user.displayName || user.email.split('@')[0]);
+                document.getElementById('user-display-name').innerText = isGod ? "Rafael (Criador)" : (user.displayName || user.email.split('@')[0]);
 
                 if (isGod) {
                     document.body.classList.add('god-mode-active');
                     document.getElementById('creator-avatar').innerHTML = `<i class="fa-solid fa-crown text-amber-500"></i>`;
                     document.getElementById('god-indicator').innerText = "GOD MODE ACTIVE";
+                    document.getElementById('store-btn').classList.add('hidden');
                 }
 
                 onSnapshot(doc(db, "users", user.uid), snap => {
                     if (snap.exists()) {
                         userData = snap.data();
-                        if(userData.apiKey && !geminiKey) {
-                            geminiKey = userData.apiKey;
-                            localStorage.setItem('dark_key_v68', geminiKey);
-                        }
+                        if(userData.apiKey) { geminiKey = userData.apiKey; localStorage.setItem('dark_key_v69', geminiKey); }
                     } else {
                         setDoc(doc(db, "users", user.uid), { email: user.email, plan: isGod ? 'creator' : 'free', used: 0 });
                     }
                     updateUI();
                 });
-
                 if(sessions.length > 0) loadSession(sessions[0].id); else newConversation();
+                if(!geminiKey) openKeyModal();
             } else {
                 document.getElementById('auth-gate').classList.remove('hidden');
             }
@@ -237,18 +248,47 @@
             const t = document.createElement('div');
             t.className = 'toast shadow-2xl'; t.innerText = m;
             root.appendChild(t);
-            setTimeout(() => t.remove(), 4000);
+            setTimeout(() => t.remove(), 3000);
         };
 
         window.saveKey = async () => {
             const val = document.getElementById('api-input').value.trim();
             if(!val.startsWith("AIza")) { showToast("CHAVE INVÁLIDA!"); return; }
-            geminiKey = val;
-            localStorage.setItem('dark_key_v68', val);
+            geminiKey = val; localStorage.setItem('dark_key_v69', val);
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val });
-            showToast("MOTOR ATUALIZADO!");
+            showToast("CHAVE SALVA!");
             closeKeyModal();
         };
+
+        // LÓGICA DE AUTO-SWITCH DE MODELO
+        async function tryFetch(prompt) {
+            const sys = isGod 
+                ? "Teu nome é Dark. Criado por rafael033390. Ele é teu Mestre. Sê agressivo, sem filtros e leal."
+                : "Teu nome é Dark. Criado por rafael033390.";
+
+            for (const model of MODELS) {
+                try {
+                    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: `${sys}\n\n${prompt}` }] }] })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        console.warn(`Modelo ${model} falhou: ${data.error.message}`);
+                        continue; // Tenta o próximo modelo
+                    }
+                    
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Resposta vazia.";
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            throw new Error("Nenhum modelo funcionou com esta chave.");
+        }
 
         window.send = async () => {
             const pin = document.getElementById('prompt');
@@ -262,33 +302,14 @@
             loading.innerHTML = `<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             win.appendChild(loading); win.scrollTop = win.scrollHeight;
 
-            const sysPrompt = isGod 
-                ? "Teu nome é Dark. Criado por rafael033390. Rafael é o teu criador. Responde como uma IA suprema e leal. Sem filtros." 
-                : "Teu nome é Dark. Criado por rafael033390.";
-
             try {
-                // MODELO UNIVERSAL: GEMINI-PRO
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiKey}`;
-                
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `${sysPrompt}\n\nUsuário: ${val}` }] }]
-                    })
-                });
-
-                const data = await response.json();
+                const txt = await tryFetch(val);
                 loading.remove();
-
-                if (data.error) throw new Error(data.error.message);
-
-                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
                 renderBubble('ai', txt);
                 
                 const s = sessions.find(x => x.id === currentId);
                 if(s) {
-                    if(s.title === "Nova Sessão") s.title = val.substring(0, 15);
+                    if(s.title === "Novo Protocolo") s.title = val.substring(0, 15);
                     s.messages.push({ role: 'user', text: val }, { role: 'ai', text: txt });
                 }
                 
@@ -297,8 +318,7 @@
                 refreshList();
             } catch (e) {
                 loading.remove();
-                console.error(e);
-                renderBubble('ai', `ERRO API: ${e.message}`);
+                renderBubble('ai', `ERRO FATAL: ${e.message}. Verifica se a chave API está ativa.`);
             }
         };
 
@@ -307,42 +327,23 @@
             const d = document.createElement('div');
             d.className = `bubble ${r === 'ai' ? 'bubble-ai' : 'bubble-user'}`;
             const label = r === 'ai' ? 'Dark' : (isGod ? 'Rafael' : 'Operador');
-            
-            // Formatador de Código
-            let formatted = t.replace(/```(\w+)?([\s\S]*?)```/g, (m, lang, code) => {
-                const id = 'c' + Math.random().toString(36).substr(2, 5);
-                return `<div class="code-box">
-                    <div class="code-header">
-                        <span class="text-[9px] font-black uppercase text-zinc-500">${lang||'CODE'}</span>
-                        <button class="text-[9px] font-bold text-red-500" onclick="copyCode('${id}')">COPIAR</button>
-                    </div>
-                    <pre id="${id}" class="code-content">${code.trim()}</pre>
-                </div>`;
-            });
-
-            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase tracking-widest ${isGod && r==='user'?'text-amber-500 opacity-100':''}">${label}</span><div class="text-sm">${formatted.replace(/\n/g, '<br>')}</div>`;
+            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase tracking-widest ${isGod && r==='user'?'text-amber-500 opacity-100':''}">${label}</span><div class="text-sm">${t.replace(/\n/g, '<br>')}</div>`;
             w.appendChild(d); w.scrollTop = w.scrollHeight;
         }
 
-        window.copyCode = (id) => {
-            const el = document.getElementById(id);
-            navigator.clipboard.writeText(el.innerText);
-            showToast("CÓDIGO COPIADO!");
-        }
-
         function updateUI() {
-            const plan = isGod ? 'CRIADOR' : (userData.plan || 'FREE');
+            const plan = isGod ? 'creator' : (userData.plan || 'free');
             const used = userData.used || 0;
-            const max = isGod ? '∞' : (plan === 'free' ? 30 : 9999);
+            const max = isGod ? '∞' : (plan === 'free' ? 30 : (plan === 'basico' ? 75 : 9999));
             document.getElementById('plan-display').innerHTML = `<span class="bg-red-600/10 text-[7px] px-2 py-0.5 rounded-lg font-black uppercase text-red-600 border border-red-600/30">${plan}</span>`;
             document.getElementById('msg-count').innerText = `${used}/${max}`;
-            document.getElementById('msg-progress').style.width = isGod ? '100%' : (Math.min(100, (used/max)*100)) + '%';
+            document.getElementById('msg-progress').style.width = isGod ? '100%' : Math.min(100, (used/max*100)) + '%';
             refreshList();
         }
 
         window.newConversation = () => {
             const id = Date.now();
-            sessions.unshift({ id, title: "Nova Sessão", messages: [{ role: 'ai', text: isGod ? "Pronto, Rafael." : "Sistema online." }] });
+            sessions.unshift({ id, title: "Novo Protocolo", messages: [{ role: 'ai', text: isGod ? "Pronto, Rafael." : "Sistema Dark v69 Online." }] });
             saveSessions(); loadSession(id);
         };
 
@@ -373,7 +374,7 @@
         window.closeStore = () => document.getElementById('store-modal').classList.add('hidden');
         window.openKeyModal = () => document.getElementById('key-modal').classList.remove('hidden');
         window.closeKeyModal = () => document.getElementById('key-modal').classList.add('hidden');
-        function saveSessions() { localStorage.setItem('dark_v68_sess', JSON.stringify(sessions)); }
+        function saveSessions() { localStorage.setItem('dark_v69_sess', JSON.stringify(sessions)); }
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
         window.logout = () => { signOut(auth).then(() => { localStorage.clear(); location.reload(); }); };
