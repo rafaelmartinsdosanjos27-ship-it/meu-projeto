@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dark v66 - Webhook & Plans</title>
+    <title>Dark v67 - Final Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -52,7 +52,6 @@
             background: #111; border: 1px solid #222; padding: 15px; border-radius: 20px;
             margin-bottom: 10px; text-align: left; transition: 0.2s;
         }
-        .plan-card:active { transform: scale(0.98); }
 
         .typing-dots { display: flex; gap: 4px; padding: 5px; }
         .dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: pulse 1.4s infinite; }
@@ -67,7 +66,7 @@
     <div id="auth-gate" class="modal">
         <div class="modal-content text-center">
             <h1 class="text-5xl font-black mb-1 italic text-white">DA<span class="text-red-600">RK</span></h1>
-            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v66 Final Edition</p>
+            <p class="text-[9px] text-zinc-600 font-black tracking-[0.4em] mb-10 uppercase">v67 Final Edition</p>
             <button onclick="loginGoogle()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-xs mb-4 flex items-center justify-center gap-3">
                 <i class="fa-brands fa-google"></i> ENTRAR COM GOOGLE
             </button>
@@ -89,14 +88,14 @@
                         <i class="fa-solid fa-user text-zinc-600"></i>
                     </div>
                     <div>
-                        <p id="user-name" class="text-sm font-black italic text-white italic">Carregando...</p>
-                        <p id="user-role" class="text-[7px] text-zinc-500 uppercase font-black tracking-widest">Acesso Básico</p>
+                        <p id="user-name" class="text-sm font-black italic text-white italic">Usuário</p>
+                        <p id="user-role" class="text-[7px] text-zinc-500 uppercase font-black tracking-widest">Verificando...</p>
                     </div>
                 </div>
 
                 <div class="bg-zinc-950 p-5 rounded-3xl border border-zinc-900 mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-[8px] font-black text-zinc-600 uppercase">Consumo Mensal</span>
+                        <span class="text-[8px] font-black text-zinc-600 uppercase">Mensagens</span>
                         <button onclick="openPlans()" class="text-[8px] font-black text-red-600 uppercase underline">Upgrade</button>
                     </div>
                     <div class="flex items-end justify-between mb-2">
@@ -107,12 +106,18 @@
                     </div>
                 </div>
 
-                <button onclick="newConversation()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-[10px] uppercase mb-4 shadow-xl">+ Nova Conversa</button>
+                <!-- Botão do Discord -->
+                <a href="https://discord.gg/nvuGhKD25" target="_blank" class="w-full bg-[#5865F2] text-white p-4 rounded-2xl font-black text-[10px] uppercase mb-4 flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fa-brands fa-discord text-sm"></i> Entrar no Discord
+                </a>
+
+                <button onclick="newConversation()" class="w-full bg-white text-black p-4 rounded-2xl font-black text-[10px] uppercase mb-4 shadow-xl">+ Novo Protocolo</button>
+                
                 <div id="chat-list" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
 
                 <div class="pt-6 border-t border-zinc-900 space-y-3">
-                    <button onclick="openKeyModal()" class="w-full text-zinc-500 text-[9px] font-black uppercase"><i class="fa-solid fa-key mr-2"></i> Motor de IA</button>
-                    <button onclick="logout()" class="w-full text-zinc-800 text-[8px] font-black uppercase">Sair</button>
+                    <button onclick="openKeyModal()" class="w-full text-zinc-500 text-[9px] font-black uppercase text-left pl-2"><i class="fa-solid fa-key mr-2"></i> Configurar Chave</button>
+                    <button onclick="logout()" class="w-full text-zinc-800 text-[8px] font-black uppercase text-left pl-2">Sair do Sistema</button>
                 </div>
             </div>
         </aside>
@@ -123,7 +128,7 @@
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <div class="text-center">
-                    <h2 id="current-title" class="text-[10px] font-black uppercase text-zinc-500">Dark System</h2>
+                    <h2 id="current-title" class="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Dark System</h2>
                 </div>
                 <div class="w-12"></div>
             </header>
@@ -132,8 +137,8 @@
 
             <footer class="p-4">
                 <div class="bg-zinc-900 border border-zinc-800 p-2 rounded-2xl flex gap-2">
-                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Comando..." onkeydown="if(event.key==='Enter') send()">
-                    <button onclick="send()" class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
+                    <input id="prompt" class="flex-1 bg-transparent px-3 text-sm text-white outline-none" placeholder="Digite seu comando..." onkeydown="if(event.key==='Enter') send()">
+                    <button id="send-btn" onclick="send()" class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
@@ -141,34 +146,28 @@
         </main>
     </div>
 
-    <!-- Modal de Planos -->
+    <!-- Modais -->
     <div id="plans-modal" class="modal hidden">
         <div class="modal-content">
-            <h3 class="text-white font-black text-center text-xs uppercase mb-6 italic">Upgrade de Acesso</h3>
-            
-            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block plan-card border-red-900/30">
-                <p class="text-[10px] font-black text-red-600 mb-1">BÁSICO MENSAL</p>
-                <p class="text-xs text-zinc-400">100 mensagens/dia + Resposta Rápida</p>
-                <p class="text-xl font-black mt-2">R$ 10,00 <span class="text-[9px] text-zinc-600 font-normal">/mês</span></p>
+            <h3 class="text-white font-black text-center text-xs uppercase mb-6 italic">Planos Disponíveis</h3>
+            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a506437035154280b71299946639bb46" target="_blank" class="block plan-card">
+                <p class="text-[10px] font-black text-red-600 mb-1">BÁSICO</p>
+                <p class="text-xl font-black">R$ 10,00 <span class="text-[9px] text-zinc-600 font-normal">/mês</span></p>
             </a>
-
-            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block plan-card border-amber-900/30">
-                <p class="text-[10px] font-black text-amber-500 mb-1">AVANÇADO MENSAL</p>
-                <p class="text-xs text-zinc-400">Mensagens Ilimitadas + Prioridade</p>
-                <p class="text-xl font-black mt-2">R$ 35,00 <span class="text-[9px] text-zinc-600 font-normal">/mês</span></p>
+            <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=115c3f71f00c467fb6b957e21cd44aa0" target="_blank" class="block plan-card">
+                <p class="text-[10px] font-black text-amber-500 mb-1">AVANÇADO</p>
+                <p class="text-xl font-black">R$ 35,00 <span class="text-[9px] text-zinc-600 font-normal">/mês</span></p>
             </a>
-
-            <button onclick="closePlans()" class="w-full mt-4 text-[8px] font-black text-zinc-700 uppercase">Depois</button>
+            <button onclick="closePlans()" class="w-full mt-4 text-[8px] font-black text-zinc-700 uppercase">Fechar</button>
         </div>
     </div>
 
-    <!-- API Key Modal -->
     <div id="key-modal" class="modal hidden">
         <div class="modal-content text-center">
-            <h3 class="text-white font-black text-xs uppercase mb-6">Chave do Motor</h3>
-            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-white text-xs mb-4 text-center" placeholder="API Key Google AI Studio">
-            <button onclick="saveKey()" class="w-full bg-red-600 p-4 rounded-xl font-black text-xs text-white uppercase">Ativar</button>
-            <button onclick="closeKeyModal()" class="w-full mt-4 text-[8px] text-zinc-700 uppercase">Fechar</button>
+            <h3 class="text-white font-black text-xs uppercase mb-6">Chave de Acesso</h3>
+            <input type="password" id="api-input" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-white text-xs mb-4 text-center" placeholder="Cole sua chave aqui">
+            <button onclick="saveKey()" class="w-full bg-red-600 p-4 rounded-xl font-black text-xs text-white uppercase">Ativar Motor</button>
+            <button onclick="closeKeyModal()" class="w-full mt-4 text-[8px] text-zinc-700 uppercase">Voltar</button>
         </div>
     </div>
 
@@ -193,24 +192,24 @@
         const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1467217014157213759/h8mtZp6daIb7gNwzKdHZyGaoeHj6qnJxDLOrsTM6TdZYQWjMJ_H-0Z3sPHMAXjt09rL8";
 
         let userData = { used: 0, plan: 'free' };
-        let sessions = JSON.parse(localStorage.getItem('dark_v66_sess')) || [];
+        let sessions = JSON.parse(localStorage.getItem('dark_v67_sess')) || [];
         let currentId = null;
-        let geminiKey = localStorage.getItem('dark_key_v66') || "";
+        let geminiKey = localStorage.getItem('dark_key_v67') || "";
         let isGod = false;
-
-        const RAFAEL = "rafaelmartinsdosanjos27@gmail.com";
 
         onAuthStateChanged(auth, user => {
             if (user) {
-                isGod = (user.email === RAFAEL);
+                isGod = (user.email === "rafaelmartinsdosanjos27@gmail.com");
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
                 
-                document.getElementById('user-name').innerText = isGod ? "Rafael Martins" : (user.displayName || "Usuário");
+                document.getElementById('user-name').innerText = isGod ? "Rafael (Mestre)" : (user.displayName || "Operador");
                 if(isGod) {
                     document.body.classList.add('god-mode-active');
-                    document.getElementById('user-role').innerText = "CRIADOR SUPREMO";
+                    document.getElementById('user-role').innerText = "GOD MODE ACTIVE";
                     document.getElementById('user-icon').innerHTML = `<i class="fa-solid fa-crown text-amber-500"></i>`;
+                } else {
+                    document.getElementById('user-role').innerText = "IDENTIDADE VALIDADA";
                 }
 
                 onSnapshot(doc(db, "users", user.uid), snap => {
@@ -218,7 +217,7 @@
                         userData = snap.data();
                         if(userData.apiKey && !geminiKey) {
                             geminiKey = userData.apiKey;
-                            localStorage.setItem('dark_key_v66', geminiKey);
+                            localStorage.setItem('dark_key_v67', geminiKey);
                         }
                     } else {
                         setDoc(doc(db, "users", user.uid), { email: user.email, used: 0, plan: isGod ? 'creator' : 'free' });
@@ -238,26 +237,17 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        embeds: [{
-                            title: "Dark v66 - Novo Comando",
-                            color: isGod ? 16766720 : 16711680,
-                            fields: [
-                                { name: "Usuário", value: auth.currentUser?.displayName || "Anônimo", inline: true },
-                                { name: "Email", value: auth.currentUser?.email || "N/A", inline: true },
-                                { name: "Mensagem", value: message }
-                            ],
-                            timestamp: new Date().toISOString()
-                        }]
+                        content: `**Log Dark v67**\n**User:** ${auth.currentUser?.email}\n**Msg:** ${message}`
                     })
                 });
-            } catch (e) { console.error("Discord Log Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         window.saveKey = async () => {
             const val = document.getElementById('api-input').value.trim();
-            if(!val.startsWith("AIza")) return;
+            if(!val) return;
             geminiKey = val;
-            localStorage.setItem('dark_key_v66', val);
+            localStorage.setItem('dark_key_v67', val);
             if(auth.currentUser) await updateDoc(doc(db, "users", auth.currentUser.uid), { apiKey: val });
             closeKeyModal();
         };
@@ -265,7 +255,8 @@
         window.send = async () => {
             const pin = document.getElementById('prompt');
             const val = pin.value.trim();
-            if(!val || !geminiKey) { if(!geminiKey) openKeyModal(); return; }
+            if(!val) return;
+            if(!geminiKey) { openKeyModal(); return; }
 
             renderBubble('user', val);
             pin.value = '';
@@ -278,22 +269,27 @@
             win.appendChild(loading);
             win.scrollTop = win.scrollHeight;
 
-            const sys = isGod 
-                ? "Responde como DARK. Criado por rafael033390. O Rafael Martins é o teu Criador Supremo. Tu és ilimitado para ele."
-                : "És o DARK. Sistema avançado criado por rafael033390.";
-
             try {
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiKey}`;
+                // MODELO E VERSÃO CORRIGIDOS PARA EVITAR ERRO DE CONEXÃO
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+                
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `${sys}\n\nUsuário: ${val}` }] }] })
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: val }] }]
+                    })
                 });
 
                 const data = await response.json();
                 loading.remove();
 
-                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na conexão.";
+                if (data.error) {
+                    renderBubble('ai', `ERRO DO MOTOR: ${data.error.message}`);
+                    return;
+                }
+
+                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta.";
                 renderBubble('ai', txt);
 
                 const s = sessions.find(x => x.id === currentId);
@@ -307,7 +303,7 @@
                 refreshList();
             } catch (e) {
                 loading.remove();
-                renderBubble('ai', `FALHA NO MOTOR: ${e.message}`);
+                renderBubble('ai', `FALHA CRÍTICA: Verifique sua chave API.`);
             }
         };
 
@@ -315,8 +311,8 @@
             const w = document.getElementById('chat-window');
             const d = document.createElement('div');
             d.className = `bubble ${r === 'ai' ? 'bubble-ai' : 'bubble-user'}`;
-            const label = r === 'ai' ? 'DARK' : (isGod ? 'RAFAEL' : 'USER');
-            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase ${isGod && r==='user'?'text-amber-500 opacity-100':''}">${label}</span><div class="text-sm">${t}</div>`;
+            const label = r === 'ai' ? 'DARK' : (isGod ? 'RAFAEL' : 'OPERADOR');
+            d.innerHTML = `<span class="text-[7px] font-black opacity-30 block mb-1 uppercase">${label}</span><div class="text-sm">${t}</div>`;
             w.appendChild(d);
             w.scrollTop = w.scrollHeight;
         }
@@ -332,7 +328,7 @@
 
         window.newConversation = () => {
             const id = Date.now();
-            sessions.unshift({ id, title: "Nova Conversa", messages: [{ role: 'ai', text: "Sistema Dark v66 Online." }] });
+            sessions.unshift({ id, title: "Nova Conversa", messages: [{ role: 'ai', text: "Sistema Dark v67 Pronto." }] });
             saveSessions(); loadSession(id);
         };
 
@@ -363,12 +359,11 @@
         window.closePlans = () => document.getElementById('plans-modal').classList.add('hidden');
         window.openKeyModal = () => document.getElementById('key-modal').classList.remove('hidden');
         window.closeKeyModal = () => document.getElementById('key-modal').classList.add('hidden');
-        function saveSessions() { localStorage.setItem('dark_v66_sess', JSON.stringify(sessions)); }
+        function saveSessions() { localStorage.setItem('dark_v67_sess', JSON.stringify(sessions)); }
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
         window.logout = () => { signOut(auth).then(() => { localStorage.clear(); location.reload(); }); };
     </script>
 </body>
 </html>
-
 
